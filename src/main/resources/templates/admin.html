@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Settings - RSAI Squad</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#0f1117;display:flex;min-height:100vh;color:#e2e8f0;}
+.sidebar{width:220px;background:#13161f;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;flex-shrink:0;position:fixed;height:100vh;z-index:10;}
+.logo{padding:20px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#e24b4a,#f97316);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.logo-text{font-size:15px;font-weight:600;color:#fff;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;letter-spacing:0.05em;}
+nav{padding:12px 0;flex:1;}
+.nav-section{font-size:10px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:0.08em;text-transform:uppercase;padding:12px 18px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;color:rgba(255,255,255,0.45);font-size:13px;cursor:pointer;text-decoration:none;transition:all 0.15s;border-left:2px solid transparent;margin:1px 0;}
+.nav-item:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.8);}
+.nav-item.active{background:rgba(99,102,241,0.12);color:#818cf8;border-left-color:#6366f1;}
+.nav-item .icon{width:16px;text-align:center;font-size:14px;}
+.nav-bottom{padding:16px 18px;border-top:1px solid rgba(255,255,255,0.06);}
+.logout-btn{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.35);font-size:13px;cursor:pointer;text-decoration:none;transition:color 0.15s;}
+.logout-btn:hover{color:#f87171;}
+.main{flex:1;margin-left:220px;padding:24px;}
+.page-title{font-size:20px;font-weight:600;color:#fff;margin-bottom:4px;}
+.page-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:28px;}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.card{background:#1a1d27;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:22px;}
+.card-title{font-size:14px;font-weight:600;color:#fff;margin-bottom:4px;}
+.card-sub{font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:20px;}
+.status-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.status-label{font-size:13px;color:rgba(255,255,255,0.5);}
+.status-val{font-size:13px;font-weight:600;}
+.status-val.active{color:#34d399;}
+.status-val.inactive{color:#f87171;}
+.toggle-btn{width:100%;padding:11px;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.2s;}
+.toggle-btn.deactivate{background:rgba(239,68,68,0.1);color:#f87171;border:1px solid rgba(239,68,68,0.2);}
+.toggle-btn.deactivate:hover{background:rgba(239,68,68,0.2);}
+.toggle-btn.activate{background:rgba(34,197,94,0.1);color:#34d399;border:1px solid rgba(34,197,94,0.2);}
+.toggle-btn.activate:hover{background:rgba(34,197,94,0.2);}
+.field{margin-bottom:14px;}
+label{display:block;font-size:11px;font-weight:500;color:rgba(255,255,255,0.4);margin-bottom:5px;letter-spacing:0.05em;text-transform:uppercase;}
+input,select,textarea{width:100%;padding:10px 13px;background:#0f1117;border:1px solid rgba(255,255,255,0.1);border-radius:10px;font-size:13px;color:#fff;outline:none;font-family:'DM Sans',sans-serif;transition:border-color 0.2s;}
+input:focus,select:focus,textarea:focus{border-color:#6366f1;}
+input::placeholder,textarea::placeholder{color:rgba(255,255,255,0.2);}
+select option{background:#1a1d27;}
+textarea{resize:vertical;min-height:80px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.submit-btn{width:100%;padding:11px;background:#6366f1;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;margin-top:4px;}
+.submit-btn.green{background:#059669;}
+.submit-btn.green:hover{background:#047857;}
+.submit-btn:hover{background:#4f46e5;}
+.msg{font-size:12px;padding:9px 12px;border-radius:8px;margin-top:10px;display:none;}
+.msg.success{background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);color:#6ee7b7;display:block;}
+.msg.error{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#fca5a5;display:block;}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(4px);}
+.modal-overlay.show{display:flex;}
+.modal{background:#1a1d27;border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:32px 28px;width:340px;text-align:center;}
+.modal-icon{font-size:32px;margin-bottom:14px;}
+.modal-title{font-size:17px;font-weight:600;color:#fff;margin-bottom:8px;}
+.modal-body{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:24px;line-height:1.6;}
+.modal-btns{display:flex;gap:10px;justify-content:center;}
+.mbtn-yes{background:#6366f1;color:#fff;border:none;border-radius:10px;padding:10px 26px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.mbtn-yes:hover{background:#4f46e5;}
+.mbtn-no{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 26px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">❤</div>
+    <div>
+      <div class="logo-text">RSAI Squad</div>
+      <div class="logo-sub">ADMIN PANEL</div>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-section">Main</div>
+    <a class="nav-item" href="/dashboard"><span class="icon">⊞</span> Dashboard</a>
+    <a class="nav-item" href="/volunteer"><span class="icon">👥</span> Volunteers</a>
+    <a class="nav-item" href="/upload-survey"><span class="icon">📤</span> Upload Survey</a>
+    <div class="nav-section">System</div>
+    <a class="nav-item active" href="/admin"><span class="icon">⚙</span> Settings</a>
+  </nav>
+  <div class="nav-bottom">
+    <a class="logout-btn" href="/"><span>⬡</span> Logout</a>
+  </div>
+</div>
+
+<div class="main">
+  <div class="page-title">Settings</div>
+  <div class="page-sub">System configuration and need management</div>
+
+  <div class="grid">
+
+    <!-- System Status -->
+    <div class="card">
+      <div class="card-title">System Status</div>
+      <div class="card-sub">Control the NGO dispatch system</div>
+      <div class="status-row">
+        <span class="status-label">Current Status</span>
+        <span class="status-val active" id="sys-status">ACTIVE</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">WhatsApp Dispatch</span>
+        <span class="status-val active">ENABLED</span>
+      </div>
+      <div class="status-row">
+        <span class="status-label">Auto-assign</span>
+        <span class="status-val" style="color:rgba(255,255,255,0.4);">MANUAL</span>
+      </div>
+      <button class="toggle-btn deactivate" id="toggle-btn" onclick="askToggle()">Deactivate System</button>
+    </div>
+
+    <!-- Add New Need -->
+    <div class="card">
+      <div class="card-title">Add New Need</div>
+      <div class="card-sub">Manually enter a community need</div>
+      <div class="field"><label>Description</label><textarea id="need-desc" placeholder="Describe the need in detail..."></textarea></div>
+      <div class="grid2">
+        <div class="field">
+          <label>Category</label>
+          <select id="need-cat">
+            <option value="">Select</option>
+            <option>Food</option><option>Medical</option>
+            <option>Shelter</option><option>Clothing</option>
+            <option>Education</option><option>Relief</option><option>Logistics</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Zone</label>
+          <select id="need-zone">
+            <option value="">Select</option>
+            <option>North</option><option>South</option>
+            <option>East</option><option>West</option>
+          </select>
+        </div>
+      </div>
+      <div class="field"><label>Urgency Score (1–10)</label><input type="number" id="need-urgency" min="1" max="10" placeholder="8"/></div>
+      <button class="submit-btn green" onclick="addNeed()">+ Add Need</button>
+      <div class="msg" id="need-msg"></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title" id="modal-title">Are you sure?</div>
+    <div class="modal-body" id="modal-body">This will deactivate the system.</div>
+    <div class="modal-btns">
+      <button class="mbtn-yes" onclick="doToggle()">Yes</button>
+      <button class="mbtn-no" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let systemActive = true;
+
+function askToggle() {
+  document.getElementById('modal-title').textContent = 'Are you sure?';
+  document.getElementById('modal-body').textContent = systemActive
+    ? 'This will deactivate the system and stop all dispatch operations.'
+    : 'This will reactivate the system and enable dispatch operations.';
+  document.getElementById('modal').classList.add('show');
+}
+
+function doToggle() {
+  systemActive = !systemActive;
+  const st = document.getElementById('sys-status');
+  const btn = document.getElementById('toggle-btn');
+  st.textContent = systemActive ? 'ACTIVE' : 'INACTIVE';
+  st.className = 'status-val ' + (systemActive ? 'active' : 'inactive');
+  btn.textContent = systemActive ? 'Deactivate System' : 'Activate System';
+  btn.className = 'toggle-btn ' + (systemActive ? 'deactivate' : 'activate');
+  closeModal();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+}
+
+function addNeed() {
+  const need = {
+    description: document.getElementById('need-desc').value.trim(),
+    category: document.getElementById('need-cat').value,
+    zone: document.getElementById('need-zone').value,
+    urgencyScore: parseInt(document.getElementById('need-urgency').value)
+  };
+  if (!need.description || !need.category || !need.zone || !need.urgencyScore) {
+    showNeedMsg('Please fill all fields', 'error'); return;
+  }
+  fetch('/api/need', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(need)
+  })
+  .then(r => r.json())
+  .then(() => {
+    showNeedMsg('Need added successfully!', 'success');
+    document.getElementById('need-desc').value = '';
+    document.getElementById('need-urgency').value = '';
+    document.getElementById('need-cat').value = '';
+    document.getElementById('need-zone').value = '';
+  })
+  .catch(() => showNeedMsg('Error adding need', 'error'));
+}
+
+function showNeedMsg(text, type) {
+  const el = document.getElementById('need-msg');
+  el.textContent = text;
+  el.className = 'msg ' + type;
+  setTimeout(() => el.className = 'msg', 3000);
+}
+</script>
+</body>
+</html>

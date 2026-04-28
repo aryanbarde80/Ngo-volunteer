@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Dashboard - RSAI Squad</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#0f1117;display:flex;min-height:100vh;color:#e2e8f0;}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:#13161f;border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;flex-shrink:0;position:fixed;height:100vh;z-index:10;}
+.logo{padding:20px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#e24b4a,#f97316);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.logo-text{font-size:15px;font-weight:600;color:#fff;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,0.3);font-family:'DM Mono',monospace;letter-spacing:0.05em;}
+nav{padding:12px 0;flex:1;}
+.nav-section{font-size:10px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:0.08em;text-transform:uppercase;padding:12px 18px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;color:rgba(255,255,255,0.45);font-size:13px;cursor:pointer;text-decoration:none;transition:all 0.15s;border-left:2px solid transparent;margin:1px 0;}
+.nav-item:hover{background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.8);}
+.nav-item.active{background:rgba(99,102,241,0.12);color:#818cf8;border-left-color:#6366f1;}
+.nav-bottom{padding:16px 18px;border-top:1px solid rgba(255,255,255,0.06);}
+.logout-btn{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.35);font-size:13px;cursor:pointer;text-decoration:none;transition:color 0.15s;}
+.logout-btn:hover{color:#f87171;}
+
+/* MAIN */
+.main{flex:1;margin-left:220px;display:flex;flex-direction:column;min-height:100vh;}
+
+/* TOPBAR */
+.topbar{background:#13161f;border-bottom:1px solid rgba(255,255,255,0.06);padding:12px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:5;}
+.search-wrap{flex:1;position:relative;}
+.search{width:100%;padding:9px 12px 9px 36px;background:#0f1117;border:1px solid rgba(255,255,255,0.08);border-radius:10px;font-size:13px;color:#fff;outline:none;font-family:'DM Sans',sans-serif;}
+.search:focus{border-color:#6366f1;}
+.search::placeholder{color:rgba(255,255,255,0.2);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:rgba(255,255,255,0.25);font-size:14px;}
+.topbar-right{display:flex;align-items:center;gap:12px;margin-left:auto;}
+.notif{position:relative;width:34px;height:34px;background:#1a1d27;border:1px solid rgba(255,255,255,0.08);border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;}
+.notif-dot{position:absolute;top:7px;right:7px;width:7px;height:7px;background:#e24b4a;border-radius:50%;border:1.5px solid #13161f;}
+.user-chip{display:flex;align-items:center;gap:10px;background:#1a1d27;border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:6px 12px 6px 6px;}
+.avatar{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#6366f1,#818cf8);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
+.user-name{font-size:13px;font-weight:500;color:#fff;}
+.user-role{font-size:11px;color:rgba(255,255,255,0.35);}
+
+/* CONTENT */
+.content{padding:24px;flex:1;}
+.page-title{font-size:20px;font-weight:600;color:#fff;margin-bottom:4px;}
+.page-sub{font-size:13px;color:rgba(255,255,255,0.4);margin-bottom:22px;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.stat{background:#1a1d27;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:18px;}
+.stat-label{font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:8px;font-weight:500;}
+.stat-value{font-size:28px;font-weight:600;line-height:1;}
+.stat-value.red{color:#f87171;}
+.stat-value.green{color:#34d399;}
+.stat-value.blue{color:#60a5fa;}
+.stat-value.white{color:#fff;}
+.stat-change{font-size:11px;color:rgba(255,255,255,0.25);margin-top:4px;}
+
+/* FILTER TABS */
+.filter-tabs{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+.ftab{padding:6px 14px;background:#1a1d27;border:1px solid rgba(255,255,255,0.08);border-radius:20px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.45);cursor:pointer;transition:all 0.15s;}
+.ftab:hover{border-color:rgba(255,255,255,0.2);color:rgba(255,255,255,0.7);}
+.ftab.active{background:#6366f1;border-color:#6366f1;color:#fff;}
+
+/* BOTTOM LAYOUT */
+.bottom-layout{display:flex;gap:18px;}
+.needs-panel{flex:1;background:#1a1d27;border:1px solid rgba(255,255,255,0.07);border-radius:14px;overflow:hidden;}
+.detail-panel{width:280px;background:#1a1d27;border:1px solid rgba(255,255,255,0.07);border-radius:14px;overflow:hidden;flex-shrink:0;}
+.panel-header{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-size:14px;font-weight:600;color:#fff;}
+.panel-count{font-size:11px;background:rgba(99,102,241,0.15);color:#818cf8;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;}
+
+/* NEED ITEM */
+.need-item{padding:14px 18px;border-bottom:1px solid rgba(255,255,255,0.05);cursor:pointer;transition:background 0.1s;display:flex;align-items:flex-start;gap:12px;}
+.need-item:hover{background:rgba(255,255,255,0.03);}
+.need-item.selected{background:rgba(99,102,241,0.07);border-left:2px solid #6366f1;}
+.need-item:last-child{border-bottom:none;}
+.need-accent{width:3px;border-radius:2px;align-self:stretch;flex-shrink:0;min-height:40px;}
+.accent-HIGH{background:#ef4444;}
+.accent-MEDIUM{background:#f59e0b;}
+.accent-LOW{background:#22c55e;}
+.need-body{flex:1;min-width:0;}
+.need-top{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px;}
+.badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.05em;}
+.badge-HIGH{background:rgba(239,68,68,0.15);color:#fca5a5;}
+.badge-MEDIUM{background:rgba(245,158,11,0.15);color:#fcd34d;}
+.badge-LOW{background:rgba(34,197,94,0.15);color:#86efac;}
+.need-cat{font-size:13px;font-weight:600;color:#fff;}
+.need-zone{font-size:11px;color:rgba(255,255,255,0.3);}
+.need-time{font-size:11px;color:rgba(255,255,255,0.2);margin-left:auto;white-space:nowrap;}
+.need-desc{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;margin-bottom:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.need-suggested{font-size:11px;color:rgba(255,255,255,0.3);margin-bottom:8px;}
+.need-suggested span{color:#818cf8;font-weight:500;}
+.need-actions{display:flex;gap:6px;}
+.btn-dispatch{background:#6366f1;color:#fff;border:none;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+.btn-dispatch:hover{background:#4f46e5;}
+.btn-view{background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.6);border:none;border-radius:7px;padding:5px 12px;font-size:12px;font-weight:500;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+.btn-view:hover{background:rgba(255,255,255,0.12);}
+
+/* DETAIL PANEL */
+.detail-inner{padding:18px;}
+.detail-empty{color:rgba(255,255,255,0.2);font-size:13px;text-align:center;padding:50px 20px;line-height:1.8;}
+.detail-badge-row{display:flex;align-items:center;gap:6px;margin-bottom:10px;}
+.detail-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-HIGH{background:#ef4444;}
+.dot-MEDIUM{background:#f59e0b;}
+.dot-LOW{background:#22c55e;}
+.detail-urg{font-size:11px;font-weight:700;letter-spacing:0.06em;}
+.urg-HIGH{color:#f87171;}
+.urg-MEDIUM{color:#fbbf24;}
+.urg-LOW{color:#34d399;}
+.status-tag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;margin-left:4px;}
+.status-OPEN{background:rgba(99,102,241,0.15);color:#818cf8;}
+.status-SENT{background:rgba(245,158,11,0.15);color:#fcd34d;}
+.status-ACCEPTED{background:rgba(34,197,94,0.15);color:#86efac;}
+.status-REJECTED{background:rgba(239,68,68,0.15);color:#fca5a5;}
+.detail-cat{font-size:17px;font-weight:600;color:#fff;margin-bottom:4px;}
+.detail-zone-line{font-size:12px;color:rgba(255,255,255,0.4);margin-bottom:3px;}
+.detail-score{font-size:11px;color:rgba(255,255,255,0.25);font-family:'DM Mono',monospace;margin-bottom:14px;}
+.detail-desc-full{font-size:13px;color:rgba(255,255,255,0.55);line-height:1.6;margin-bottom:16px;padding:12px;background:rgba(255,255,255,0.03);border-radius:8px;border:1px solid rgba(255,255,255,0.05);}
+.detail-section{font-size:10px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:10px;}
+.vol-card{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px 12px;margin-bottom:8px;}
+.vol-av{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;}
+.vol-av-1{background:linear-gradient(135deg,#6366f1,#8b5cf6);}
+.vol-av-2{background:linear-gradient(135deg,#0ea5e9,#6366f1);}
+.vol-av-3{background:linear-gradient(135deg,#f97316,#ef4444);}
+.vol-info{flex:1;min-width:0;}
+.vol-name{font-size:13px;font-weight:500;color:#fff;}
+.vol-skill{font-size:11px;color:rgba(255,255,255,0.3);}
+.vol-match{font-size:11px;font-weight:700;color:#34d399;background:rgba(34,197,94,0.1);padding:2px 7px;border-radius:20px;white-space:nowrap;}
+.detail-dispatch-btn{width:100%;padding:11px;background:#6366f1;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;margin-top:14px;font-family:'DM Sans',sans-serif;transition:background 0.15s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.detail-dispatch-btn:hover{background:#4f46e5;}
+.no-vols{font-size:12px;color:rgba(255,255,255,0.2);padding:10px 0;text-align:center;}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.65);align-items:center;justify-content:center;z-index:100;backdrop-filter:blur(6px);}
+.modal-overlay.show{display:flex;}
+.modal{background:#1a1d27;border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:32px 28px;width:340px;text-align:center;box-shadow:0 24px 80px rgba(0,0,0,0.6);}
+.modal-icon{font-size:36px;margin-bottom:14px;}
+.modal-title{font-size:17px;font-weight:600;color:#fff;margin-bottom:8px;}
+.modal-body{font-size:13px;color:rgba(255,255,255,0.5);margin-bottom:24px;line-height:1.6;}
+.modal-btns{display:flex;gap:10px;justify-content:center;}
+.mbtn-yes{background:#6366f1;color:#fff;border:none;border-radius:10px;padding:10px 28px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background 0.15s;}
+.mbtn-yes:hover{background:#4f46e5;}
+.mbtn-no{background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:10px 28px;font-size:13px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.mbtn-no:hover{background:rgba(255,255,255,0.1);}
+.empty-state{text-align:center;padding:50px 20px;color:rgba(255,255,255,0.2);font-size:13px;line-height:1.8;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">❤</div>
+    <div>
+      <div class="logo-text">RSAI Squad</div>
+      <div class="logo-sub">ADMIN PANEL</div>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-section">Main</div>
+    <a class="nav-item active" href="/dashboard"><span>⊞</span> Dashboard</a>
+    <a class="nav-item" href="/volunteer"><span>👥</span> Volunteers</a>
+    <a class="nav-item" href="/admin"><span>⚙</span> Settings</a>
+  </nav>
+  <div class="nav-bottom">
+    <a class="logout-btn" href="#" onclick="doLogout(event)"><span>↩</span> Logout</a>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input class="search" type="text" placeholder="Search needs, zones, categories..." oninput="filterNeeds(this.value)"/>
+    </div>
+    <div class="topbar-right">
+      <div class="notif">🔔<div class="notif-dot"></div></div>
+      <div class="user-chip">
+        <div class="avatar">AD</div>
+        <div>
+          <div class="user-name">Admin</div>
+          <div class="user-role">Coordinator</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+    <div class="page-title">Dashboard</div>
+    <div class="page-sub">Real-time needs and volunteer dispatch management</div>
+
+    <!-- STATS -->
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Total Needs</div>
+        <div class="stat-value white" id="stat-total">—</div>
+        <div class="stat-change">Active requests</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">High Urgency</div>
+        <div class="stat-value red" id="stat-high">—</div>
+        <div class="stat-change">Score ≥ 7</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Volunteers Active</div>
+        <div class="stat-value green" id="stat-vols">—</div>
+        <div class="stat-change">Available now</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Needs Resolved</div>
+        <div class="stat-value blue" id="stat-resolved">—</div>
+        <div class="stat-change">Accepted + Rejected</div>
+      </div>
+    </div>
+
+    <!-- FILTER TABS -->
+    <div class="filter-tabs">
+      <div class="ftab active" onclick="filterByCategory('All',this)">All</div>
+      <div class="ftab" onclick="filterByCategory('Food',this)">🍱 Food</div>
+      <div class="ftab" onclick="filterByCategory('Medical',this)">💊 Medical</div>
+      <div class="ftab" onclick="filterByCategory('Shelter',this)">🏠 Shelter</div>
+      <div class="ftab" onclick="filterByCategory('Education',this)">📚 Education</div>
+      <div class="ftab" onclick="filterByCategory('Clothing',this)">👕 Clothing</div>
+      <div class="ftab" onclick="filterByCategory('Relief',this)">🤝 Relief</div>
+    </div>
+
+    <!-- BOTTOM LAYOUT -->
+    <div class="bottom-layout">
+
+      <!-- NEEDS PANEL -->
+      <div class="needs-panel">
+        <div class="panel-header">
+          <span class="panel-title">Recent Needs</span>
+          <span class="panel-count" id="needs-count">0</span>
+        </div>
+        <div id="needs-list">
+          <div class="empty-state">Loading needs...</div>
+        </div>
+      </div>
+
+      <!-- DETAIL PANEL -->
+      <div class="detail-panel">
+        <div class="panel-header">
+          <span class="panel-title">Need Details</span>
+        </div>
+        <div id="detail-content">
+          <div class="detail-empty">
+            👆 Click any need<br>to see full details<br>and suggested volunteers
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-icon" id="modal-icon">📲</div>
+    <div class="modal-title" id="modal-title">Confirm Dispatch</div>
+    <div class="modal-body" id="modal-body">Send WhatsApp message to volunteer?</div>
+    <div class="modal-btns">
+      <button class="mbtn-yes" id="modal-yes-btn" onclick="confirmDispatch()">Yes, Send</button>
+      <button class="mbtn-no" id="modal-no-btn" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let allNeeds      = [];
+let allVolunteers = [];
+let pendingNeedId = null;
+let pendingPhone  = null;
+let activeCategory = 'All';
+let selectedNeedId = null;
+
+/* ── URGENCY ── */
+function urgencyLabel(score) {
+  if (score >= 7) return 'HIGH';
+  if (score >= 4) return 'MEDIUM';
+  return 'LOW';
+}
+
+/* ── LOAD STATS ── */
+async function loadStats() {
+  try {
+    const res = await fetch('/api/stats');
+    const s   = await res.json();
+    document.getElementById('stat-total').textContent    = s.totalNeeds      ?? 0;
+    document.getElementById('stat-high').textContent     = s.highUrgency     ?? 0;
+    document.getElementById('stat-vols').textContent     = s.volunteersActive ?? 0;
+    document.getElementById('stat-resolved').textContent = s.needsResolved   ?? 0;
+  } catch(e) { console.error('Stats error', e); }
+}
+
+/* ── LOAD NEEDS ── */
+async function loadNeeds() {
+  try {
+    const res = await fetch('/api/needs');
+    allNeeds  = await res.json();
+    applyFilters();
+  } catch(e) {
+    document.getElementById('needs-list').innerHTML =
+      '<div class="empty-state">Error loading needs.<br>Check your backend.</div>';
+  }
+}
+
+/* ── LOAD VOLUNTEERS ── */
+async function loadVolunteers() {
+  try {
+    const res    = await fetch('/api/volunteers');
+    allVolunteers = await res.json();
+  } catch(e) { console.error('Volunteers error', e); }
+}
+
+/* ── SUGGESTED VOLS ── */
+function getSuggested(need) {
+  return allVolunteers
+    .filter(v => v.zone === need.zone && v.status === 'AVAILABLE')
+    .slice(0, 3);
+}
+
+/* ── APPLY FILTERS ── */
+function applyFilters(searchQuery) {
+  let list = [...allNeeds];
+  if (activeCategory !== 'All') {
+    list = list.filter(n => n.category === activeCategory);
+  }
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    list = list.filter(n =>
+      (n.category    || '').toLowerCase().includes(q) ||
+      (n.zone        || '').toLowerCase().includes(q) ||
+      (n.description || '').toLowerCase().includes(q)
+    );
+  }
+  renderNeeds(list);
+}
+
+function filterNeeds(q)            { applyFilters(q); }
+function filterByCategory(cat, el) {
+  activeCategory = cat;
+  document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  applyFilters();
+}
+
+/* ── RENDER NEEDS ── */
+function renderNeeds(needs) {
+  const list = document.getElementById('needs-list');
+  document.getElementById('needs-count').textContent = needs.length;
+
+  if (!needs || needs.length === 0) {
+    list.innerHTML = '<div class="empty-state">No needs found.<br>Add one from Settings.</div>';
+    return;
+  }
+
+  const avColors = ['vol-av-1','vol-av-2','vol-av-3'];
+
+  list.innerHTML = needs.map(n => {
+    const u         = urgencyLabel(n.urgencyScore);
+    const suggested = getSuggested(n);
+    const sugNames  = suggested.map(v => v.name).join(', ') || 'None in zone';
+    const sel       = selectedNeedId === n.id ? 'selected' : '';
+
+    return `
+    <div class="need-item ${sel}" onclick="selectNeed(${n.id}, this)">
+      <div class="need-accent accent-${u}"></div>
+      <div class="need-body">
+        <div class="need-top">
+          <span class="badge badge-${u}">${u}</span>
+          <span class="need-cat">${n.category || '—'}</span>
+          <span class="need-zone">📍 ${n.zone || '—'} Zone</span>
+          <span class="need-time">${randomTime(n.id)}</span>
+        </div>
+        <div class="need-desc">${n.description || ''}</div>
+        <div class="need-suggested">Suggested: <span>${sugNames}</span></div>
+        <div class="need-actions">
+          <button class="btn-dispatch" onclick="event.stopPropagation();openDispatch(${n.id})">🚀 Dispatch</button>
+          <button class="btn-view"     onclick="event.stopPropagation();selectNeed(${n.id}, null)">View</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* ── RANDOM TIME (display only) ── */
+function randomTime(seed) {
+  const mins = (seed * 7) % 55 + 1;
+  return mins < 60 ? mins + ' min ago' : Math.floor(mins/60) + ' hr ago';
+}
+
+/* ── SELECT NEED → SHOW DETAIL ── */
+function selectNeed(id, el) {
+  selectedNeedId = id;
+
+  // Highlight selected
+  document.querySelectorAll('.need-item').forEach(i => i.classList.remove('selected'));
+  if (el) el.classList.add('selected');
+
+  const n = allNeeds.find(x => x.id === id);
+  if (!n) return;
+
+  const u         = urgencyLabel(n.urgencyScore);
+  const suggested = getSuggested(n);
+  const avColors  = ['vol-av-1','vol-av-2','vol-av-3'];
+  const matches   = [92, 85, 71];
+
+  const volCards = suggested.length
+    ? suggested.map((v,i) => `
+        <div class="vol-card">
+          <div class="vol-av ${avColors[i]}">${(v.name||'?')[0].toUpperCase()}</div>
+          <div class="vol-info">
+            <div class="vol-name">${v.name}</div>
+            <div class="vol-skill">${v.skills || '—'}</div>
+          </div>
+          <span class="vol-match">${matches[i]}%</span>
+        </div>`).join('')
+    : '<div class="no-vols">No volunteers available in this zone</div>';
+
+  document.getElementById('detail-content').innerHTML = `
+    <div class="detail-inner">
+      <div class="detail-badge-row">
+        <div class="detail-dot dot-${u}"></div>
+        <span class="detail-urg urg-${u}">${u}</span>
+        <span class="status-tag status-${n.status || 'OPEN'}">${n.status || 'OPEN'}</span>
+      </div>
+      <div class="detail-cat">${n.category || '—'}</div>
+      <div class="detail-zone-line">📍 ${n.zone || '—'} Zone</div>
+      <div class="detail-score">Urgency Score: ${n.urgencyScore} / 10</div>
+      <div class="detail-desc-full">${n.description || 'No description.'}</div>
+      <div class="detail-section">Suggested Volunteers</div>
+      ${volCards}
+      <button class="detail-dispatch-btn" onclick="openDispatch(${n.id})">
+        🚀 Dispatch to ${suggested[0]?.name || 'Volunteer'}
+      </button>
+    </div>`;
+}
+
+/* ── OPEN DISPATCH MODAL ── */
+function openDispatch(id) {
+  const n = allNeeds.find(x => x.id === id);
+  if (!n) return alert('Need not found');
+
+  const v = allVolunteers.find(v =>
+    v.zone === n.zone && v.status === 'AVAILABLE'
+  );
+
+  if (!v)       return alert('No available volunteer in ' + (n.zone || '?') + ' zone.\nPlease register a volunteer for this zone.');
+  if (!v.phone) return alert('Volunteer phone number is missing in database.');
+
+  pendingNeedId = id;
+  pendingPhone  = v.phone;
+
+  document.getElementById('modal-icon').textContent  = '📲';
+  document.getElementById('modal-title').textContent = 'Confirm Dispatch';
+  document.getElementById('modal-body').textContent  =
+    'Send WhatsApp message to ' + v.name + ' (' + v.phone + ') for:\n' +
+    n.category + ' need in ' + n.zone + ' Zone?';
+  document.getElementById('modal-yes-btn').style.display = '';
+  document.getElementById('modal-no-btn').textContent    = 'Cancel';
+  document.getElementById('modal').classList.add('show');
+}
+
+/* ── CONFIRM DISPATCH ── */
+async function confirmDispatch() {
+  document.getElementById('modal').classList.remove('show');
+
+  if (!pendingNeedId || !pendingPhone) return;
+
+  const params = new URLSearchParams({ phone: pendingPhone });
+
+  try {
+    await fetch('/api/assign/' + pendingNeedId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: params
+    });
+
+    // Show success modal
+    document.getElementById('modal-icon').textContent  = '✅';
+    document.getElementById('modal-title').textContent = 'Message Sent!';
+    document.getElementById('modal-body').textContent  =
+      'WhatsApp dispatch sent successfully via Twilio.';
+    document.getElementById('modal-yes-btn').style.display = 'none';
+    document.getElementById('modal-no-btn').textContent    = 'Close';
+    document.getElementById('modal').classList.add('show');
+
+    loadNeeds();
+    loadStats();
+  } catch(e) {
+    alert('Dispatch failed. Check Eclipse console.');
+    console.error(e);
+  }
+
+  pendingNeedId = null;
+  pendingPhone  = null;
+}
+
+/* ── CLOSE MODAL ── */
+function closeModal() {
+  document.getElementById('modal').classList.remove('show');
+  pendingNeedId = null;
+  pendingPhone  = null;
+}
+
+/* ── LOGOUT ── */
+function doLogout(e) {
+  e.preventDefault();
+  fetch('/auth/logout', { method: 'POST' })
+    .finally(() => window.location.href = '/');
+}
+
+/* ── INIT ── */
+loadStats();
+loadNeeds();
+loadVolunteers();
+
+// Auto-refresh every 30 seconds
+setInterval(() => { loadStats(); loadNeeds(); }, 30000);
+</script>
+</body>
+</html>
+
+
+
+
+

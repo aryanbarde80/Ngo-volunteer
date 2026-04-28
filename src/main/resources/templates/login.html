@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+	<meta charset="UTF-8">
+	<title>Login - RSAI Squad</title>
+	<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap"
+		rel="stylesheet">
+	<style>
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			font-family: 'DM Sans', sans-serif;
+			background: #0f1117;
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.bg-grid {
+			position: absolute;
+			inset: 0;
+			background-image: linear-gradient(rgba(99, 102, 241, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.06) 1px, transparent 1px);
+			background-size: 40px 40px;
+		}
+
+		.bg-glow {
+			position: absolute;
+			width: 600px;
+			height: 600px;
+			background: radial-gradient(circle, rgba(99, 102, 241, 0.12) 0%, transparent 70%);
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+		}
+
+		.card {
+			position: relative;
+			background: #1a1d27;
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			border-radius: 20px;
+			padding: 40px;
+			width: 400px;
+			box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+		}
+
+		.logo {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 32px;
+		}
+
+		.logo-icon {
+			width: 40px;
+			height: 40px;
+			background: linear-gradient(135deg, #e24b4a, #f97316);
+			border-radius: 10px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 18px;
+		}
+
+		.logo-text {
+			font-size: 18px;
+			font-weight: 600;
+			color: #fff;
+		}
+
+		.logo-sub {
+			font-size: 12px;
+			color: rgba(255, 255, 255, 0.4);
+			font-family: 'DM Mono', monospace;
+		}
+
+		h2 {
+			font-size: 22px;
+			font-weight: 600;
+			color: #fff;
+			margin-bottom: 6px;
+		}
+
+		.subtitle {
+			font-size: 13px;
+			color: rgba(255, 255, 255, 0.4);
+			margin-bottom: 28px;
+		}
+
+		.tabs {
+			display: flex;
+			background: #0f1117;
+			border-radius: 10px;
+			padding: 4px;
+			margin-bottom: 24px;
+			gap: 4px;
+		}
+
+		.tab {
+			flex: 1;
+			padding: 8px;
+			text-align: center;
+			border-radius: 7px;
+			font-size: 13px;
+			font-weight: 500;
+			cursor: pointer;
+			color: rgba(255, 255, 255, 0.4);
+			transition: all 0.2s;
+		}
+
+		.tab.active {
+			background: #6366f1;
+			color: #fff;
+		}
+
+		.field {
+			margin-bottom: 16px;
+		}
+
+		label {
+			display: block;
+			font-size: 12px;
+			font-weight: 500;
+			color: rgba(255, 255, 255, 0.5);
+			margin-bottom: 6px;
+			letter-spacing: 0.04em;
+			text-transform: uppercase;
+		}
+
+		input {
+			width: 100%;
+			padding: 11px 14px;
+			background: #0f1117;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			border-radius: 10px;
+			font-size: 14px;
+			color: #fff;
+			outline: none;
+			font-family: 'DM Sans', sans-serif;
+			transition: border-color 0.2s;
+		}
+
+		input:focus {
+			border-color: #6366f1;
+		}
+
+		input::placeholder {
+			color: rgba(255, 255, 255, 0.2);
+		}
+
+		.btn {
+			width: 100%;
+			padding: 12px;
+			background: #6366f1;
+			color: #fff;
+			border: none;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 600;
+			cursor: pointer;
+			margin-top: 8px;
+			transition: all 0.2s;
+			font-family: 'DM Sans', sans-serif;
+		}
+
+		.btn:hover {
+			background: #4f46e5;
+			transform: translateY(-1px);
+		}
+
+		.btn:active {
+			transform: translateY(0);
+		}
+
+		.err {
+			background: rgba(239, 68, 68, 0.1);
+			border: 1px solid rgba(239, 68, 68, 0.3);
+			color: #fca5a5;
+			font-size: 13px;
+			padding: 10px 14px;
+			border-radius: 8px;
+			margin-bottom: 16px;
+			display: none;
+		}
+
+		.link {
+			text-align: center;
+			margin-top: 20px;
+			font-size: 13px;
+			color: rgba(255, 255, 255, 0.4);
+		}
+
+		.link a {
+			color: #818cf8;
+			text-decoration: none;
+		}
+
+		.link a:hover {
+			color: #a5b4fc;
+		}
+
+		.badge {
+			display: inline-block;
+			font-size: 10px;
+			font-family: 'DM Mono', monospace;
+			background: rgba(99, 102, 241, 0.15);
+			color: #818cf8;
+			border: 1px solid rgba(99, 102, 241, 0.3);
+			padding: 2px 8px;
+			border-radius: 20px;
+			margin-left: 6px;
+			vertical-align: middle;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="bg-grid"></div>
+	<div class="bg-glow"></div>
+	<div class="card">
+		<div class="logo">
+			<div class="logo-icon">❤</div>
+			<div>
+				<div class="logo-text">RSAI Squad</div>
+				<div class="logo-sub">NGO MANAGEMENT SYSTEM</div>
+			</div>
+		</div>
+		<h2>Welcome back</h2>
+		<div class="subtitle">Sign in to your account to continue</div>
+
+		<div class="tabs">
+			<div class="tab active" onclick="setRole('admin',this)">Admin <span class="badge">Coordinator</span></div>
+			<div class="tab" onclick="setRole('volunteer',this)">Volunteer</div>
+		</div>
+
+		<div class="err" id="err">Invalid credentials. Please try again.</div>
+
+		<div class="field"><label>Email</label><input type="email" id="email" placeholder="admin@rsai.org" /></div>
+		<div class="field"><label>Password</label><input type="password" id="password" placeholder="••••••••" /></div>
+		<button class="btn" onclick="doLogin()">Sign In</button>
+		<div class="link">New volunteer? <a href="/register">Create account</a></div>
+	</div>
+
+	<script>
+		let role = 'admin';
+		function setRole(r, el) {
+			role = r;
+			document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+			el.classList.add('active');
+		}
+		function doLogin() {
+			const email = document.getElementById('email').value.trim();
+			const password = document.getElementById('password').value.trim();
+
+			if (!email || !password) {showErr('Please fill all fields'); return;}
+
+			const params = new URLSearchParams({email, password, role});
+
+			console.log('Sending login:', {email, password, role}); // debug
+
+			fetch('/auth/login', {
+				method: 'POST',
+				headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+				body: params
+			})
+				.then(r => r.text())
+				.then(res => {
+					console.log('Login response:', res); // debug
+					if (res === 'ADMIN') window.location.href = '/dashboard';
+					else if (res === 'VOLUNTEER') window.location.href = '/volunteer-dashboard';
+					else showErr(res); // show exact error from server
+				})
+				.catch(err => {
+					console.error(err);
+					showErr('Server error. Check console.');
+				});
+		}
+		function showErr(msg) {
+			const e = document.getElementById('err');
+			e.textContent = msg;
+			e.style.display = 'block';
+		}
+		document.addEventListener('keydown', e => {if (e.key === 'Enter') doLogin();});
+	</script>
+</body>
+
+</html>

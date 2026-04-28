@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<title>Volunteer Portal - RSAI Squad</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#0a0f0d;min-height:100vh;color:#e2e8f0;display:flex;}
+.sidebar{width:220px;background:#0f1a14;border-right:1px solid rgba(52,211,153,0.08);display:flex;flex-direction:column;flex-shrink:0;position:fixed;height:100vh;z-index:10;}
+.logo{padding:20px 18px;display:flex;align-items:center;gap:12px;border-bottom:1px solid rgba(52,211,153,0.08);}
+.logo-icon{width:34px;height:34px;background:linear-gradient(135deg,#059669,#34d399);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.logo-text{font-size:15px;font-weight:600;color:#fff;}
+.logo-sub{font-size:10px;color:rgba(52,211,153,0.4);font-family:'DM Mono',monospace;letter-spacing:0.05em;}
+nav{padding:12px 0;flex:1;}
+.nav-section{font-size:10px;font-weight:600;color:rgba(52,211,153,0.25);letter-spacing:0.08em;text-transform:uppercase;padding:12px 18px 6px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;color:rgba(255,255,255,0.4);font-size:13px;cursor:pointer;text-decoration:none;transition:all 0.15s;border-left:2px solid transparent;margin:1px 0;}
+.nav-item:hover{background:rgba(52,211,153,0.05);color:rgba(255,255,255,0.8);}
+.nav-item.active{background:rgba(52,211,153,0.08);color:#34d399;border-left-color:#10b981;}
+.nav-item .icon{width:16px;text-align:center;font-size:14px;}
+.nav-bottom{padding:16px 18px;border-top:1px solid rgba(52,211,153,0.08);}
+.logout-btn{display:flex;align-items:center;gap:10px;color:rgba(255,255,255,0.3);font-size:13px;cursor:pointer;text-decoration:none;}
+.logout-btn:hover{color:#f87171;}
+.main{flex:1;margin-left:220px;display:flex;flex-direction:column;}
+.topbar{background:#0f1a14;border-bottom:1px solid rgba(52,211,153,0.08);padding:12px 24px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:5;}
+.topbar-title{font-size:15px;font-weight:600;color:#fff;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:12px;}
+.avail-toggle{display:flex;align-items:center;gap:8px;background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.2);border-radius:10px;padding:7px 14px;cursor:pointer;}
+.avail-dot{width:8px;height:8px;border-radius:50%;background:#34d399;}
+.avail-dot.busy{background:#f59e0b;}
+.avail-text{font-size:13px;font-weight:500;color:#34d399;}
+.avail-text.busy{color:#fbbf24;}
+.user-chip{display:flex;align-items:center;gap:10px;background:#162118;border:1px solid rgba(52,211,153,0.12);border-radius:10px;padding:6px 12px 6px 6px;}
+.avatar{width:28px;height:28px;border-radius:7px;background:linear-gradient(135deg,#059669,#34d399);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:#fff;}
+.user-name{font-size:13px;font-weight:500;color:#fff;}
+.user-role{font-size:11px;color:rgba(52,211,153,0.5);}
+.content{padding:24px;flex:1;}
+.welcome-banner{background:linear-gradient(135deg,rgba(5,150,105,0.15),rgba(52,211,153,0.05));border:1px solid rgba(52,211,153,0.15);border-radius:16px;padding:22px 24px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;}
+.welcome-text h2{font-size:18px;font-weight:600;color:#fff;margin-bottom:4px;}
+.welcome-text p{font-size:13px;color:rgba(255,255,255,0.4);}
+.welcome-icon{font-size:40px;opacity:0.6;}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.stat{background:#162118;border:1px solid rgba(52,211,153,0.08);border-radius:14px;padding:18px;}
+.stat-label{font-size:12px;color:rgba(255,255,255,0.35);margin-bottom:8px;font-weight:500;}
+.stat-value{font-size:26px;font-weight:600;}
+.stat-value.green{color:#34d399;}
+.stat-value.yellow{color:#fbbf24;}
+.stat-value.white{color:#fff;}
+.section-title{font-size:15px;font-weight:600;color:#fff;margin-bottom:14px;}
+.tasks-panel{background:#162118;border:1px solid rgba(52,211,153,0.08);border-radius:14px;overflow:hidden;margin-bottom:20px;}
+.panel-header{padding:14px 18px;border-bottom:1px solid rgba(52,211,153,0.07);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-size:13px;font-weight:600;color:#fff;}
+.task-item{padding:16px 18px;border-bottom:1px solid rgba(52,211,153,0.05);display:flex;align-items:flex-start;gap:12px;}
+.task-item:last-child{border-bottom:none;}
+.task-accent{width:3px;border-radius:2px;align-self:stretch;min-height:50px;flex-shrink:0;}
+.accent-HIGH{background:#ef4444;}
+.accent-MEDIUM{background:#f59e0b;}
+.accent-LOW{background:#22c55e;}
+.task-body{flex:1;}
+.task-top{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap;}
+.badge{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;letter-spacing:0.05em;}
+.badge-HIGH{background:rgba(239,68,68,0.15);color:#fca5a5;}
+.badge-MEDIUM{background:rgba(245,158,11,0.15);color:#fcd34d;}
+.badge-LOW{background:rgba(34,197,94,0.15);color:#86efac;}
+.task-cat{font-size:13px;font-weight:600;color:#fff;}
+.task-zone{font-size:11px;color:rgba(255,255,255,0.35);}
+.task-desc{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;margin-bottom:10px;}
+.task-actions{display:flex;gap:8px;}
+.btn-accept{background:rgba(52,211,153,0.12);color:#34d399;border:1px solid rgba(52,211,153,0.2);border-radius:7px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.btn-accept:hover{background:rgba(52,211,153,0.2);}
+.btn-reject{background:rgba(239,68,68,0.08);color:#f87171;border:1px solid rgba(239,68,68,0.15);border-radius:7px;padding:6px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.btn-reject:hover{background:rgba(239,68,68,0.15);}
+.status-chip{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;display:inline-block;}
+.status-OPEN{background:rgba(99,102,241,0.12);color:#818cf8;}
+.status-SENT{background:rgba(245,158,11,0.12);color:#fcd34d;}
+.status-ACCEPTED{background:rgba(34,197,94,0.12);color:#86efac;}
+.status-REJECTED{background:rgba(239,68,68,0.12);color:#fca5a5;}
+.empty-state{text-align:center;padding:50px 20px;color:rgba(255,255,255,0.25);font-size:13px;}
+.profile-card{background:#162118;border:1px solid rgba(52,211,153,0.08);border-radius:14px;padding:22px;}
+.profile-top{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+.profile-avatar{width:52px;height:52px;border-radius:13px;background:linear-gradient(135deg,#059669,#34d399);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:#fff;}
+.profile-name{font-size:16px;font-weight:600;color:#fff;}
+.profile-role{font-size:12px;color:rgba(52,211,153,0.6);margin-top:2px;}
+.profile-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(52,211,153,0.06);font-size:13px;}
+.profile-row:last-child{border-bottom:none;}
+.profile-key{color:rgba(255,255,255,0.35);}
+.profile-val{color:rgba(255,255,255,0.7);font-weight:500;}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-icon">❤</div>
+    <div>
+      <div class="logo-text">RSAI Squad</div>
+      <div class="logo-sub">VOLUNTEER PORTAL</div>
+    </div>
+  </div>
+  <nav>
+    <div class="nav-section">Menu</div>
+    <a class="nav-item active" href="/volunteer-dashboard"><span class="icon">⊞</span> My Tasks</a>
+    <a class="nav-item" href="/volunteer-dashboard#profile"><span class="icon">👤</span> My Profile</a>
+    <div class="nav-section">Help</div>
+    <a class="nav-item" href="/"><span class="icon">💬</span> Contact Admin</a>
+  </nav>
+  <div class="nav-bottom">
+    <a class="logout-btn" href="/"><span>⬡</span> Logout</a>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title">Volunteer Portal</span>
+    <div class="topbar-right">
+      <div class="avail-toggle" id="avail-toggle" onclick="toggleAvailability()">
+        <div class="avail-dot" id="avail-dot"></div>
+        <span class="avail-text" id="avail-text">Available</span>
+      </div>
+      <div class="user-chip">
+        <div class="avatar" id="vol-avatar">V</div>
+        <div>
+          <div class="user-name" id="vol-name-top">Volunteer</div>
+          <div class="user-role">Field Worker</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h2>Welcome back! 👋</h2>
+        <p>You are making a difference in your community</p>
+      </div>
+      <div class="welcome-icon">🌿</div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Tasks Assigned</div>
+        <div class="stat-value white" id="vol-assigned">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Tasks Accepted</div>
+        <div class="stat-value green" id="vol-accepted">0</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value yellow" id="vol-pending">0</div>
+      </div>
+    </div>
+
+    <div class="section-title">Assigned Tasks</div>
+    <div class="tasks-panel">
+      <div class="panel-header">
+        <span class="panel-title">Your Needs to Handle</span>
+      </div>
+      <div id="tasks-list"><div class="empty-state">Loading your tasks...</div></div>
+    </div>
+
+    <div class="section-title" id="profile">Your Profile</div>
+    <div class="profile-card" id="profile-card">
+      <div class="empty-state">Loading profile...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Get volunteer phone from session/localStorage (set after login)
+// For now we use URL param or localStorage
+const volPhone = localStorage.getItem('volPhone') || '';
+let volData = null;
+let isAvailable = true;
+
+async function loadVolunteerData() {
+  try {
+    const res = await fetch('/api/volunteers');
+    const vols = await res.json();
+    // Find current volunteer by phone
+    volData = vols.find(v => v.phone === volPhone) || vols[0]; // fallback for demo
+    if (volData) {
+      isAvailable = volData.status === 'AVAILABLE';
+      updateAvailUI();
+      document.getElementById('vol-avatar').textContent = volData.name ? volData.name[0].toUpperCase() : 'V';
+      document.getElementById('vol-name-top').textContent = volData.name || 'Volunteer';
+      renderProfile(volData);
+    }
+  } catch(e) { console.error(e); }
+}
+
+async function loadTasks() {
+  try {
+    const res = await fetch('/api/needs');
+    const needs = await res.json();
+    // Show needs assigned to this volunteer
+    const myNeeds = volData
+      ? needs.filter(n => n.volunteerPhone === volData.phone)
+      : needs.filter(n => n.status === 'SENT');
+
+    document.getElementById('vol-assigned').textContent = myNeeds.length;
+    document.getElementById('vol-accepted').textContent = myNeeds.filter(n => n.status === 'ACCEPTED').length;
+    document.getElementById('vol-pending').textContent = myNeeds.filter(n => n.status === 'SENT').length;
+
+    renderTasks(myNeeds);
+  } catch(e) { console.error(e); }
+}
+
+function urgencyLabel(score) {
+  if (score >= 7) return 'HIGH';
+  if (score >= 4) return 'MEDIUM';
+  return 'LOW';
+}
+
+function renderTasks(needs) {
+  const list = document.getElementById('tasks-list');
+  if (!needs.length) {
+    list.innerHTML = '<div class="empty-state">No tasks assigned to you yet.<br>Stay available to receive dispatch messages.</div>';
+    return;
+  }
+  list.innerHTML = needs.map(n => {
+    const u = urgencyLabel(n.urgencyScore);
+    const isSent = n.status === 'SENT';
+    return `<div class="task-item">
+      <div class="task-accent accent-${u}"></div>
+      <div class="task-body">
+        <div class="task-top">
+          <span class="badge badge-${u}">${u}</span>
+          <span class="task-cat">${n.category || '—'}</span>
+          <span class="task-zone">📍 ${n.zone || '—'} Zone</span>
+          <span class="status-chip status-${n.status}">${n.status}</span>
+        </div>
+        <div class="task-desc">${n.description || ''}</div>
+        ${isSent ? `<div class="task-actions">
+          <button class="btn-accept" onclick="respondTask(${n.id},'accept','${n.token}')">✓ Accept</button>
+          <button class="btn-reject" onclick="respondTask(${n.id},'reject','${n.token}')">✗ Decline</button>
+        </div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function respondTask(id, action, token) {
+  try {
+    const res = await fetch(`/${action}/${id}?token=${token}`);
+    const text = await res.text();
+    alert(text);
+    loadTasks();
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+function renderProfile(v) {
+  const card = document.getElementById('profile-card');
+  card.innerHTML = `
+    <div class="profile-top">
+      <div class="profile-avatar">${v.name ? v.name[0].toUpperCase() : '?'}</div>
+      <div>
+        <div class="profile-name">${v.name || '—'}</div>
+        <div class="profile-role">🌿 Field Volunteer</div>
+      </div>
+    </div>
+    <div class="profile-row"><span class="profile-key">Email</span><span class="profile-val">${v.email || '—'}</span></div>
+    <div class="profile-row"><span class="profile-key">Phone</span><span class="profile-val" style="font-family:'DM Mono',monospace;">${v.phone || '—'}</span></div>
+    <div class="profile-row"><span class="profile-key">Skills</span><span class="profile-val">${v.skills || '—'}</span></div>
+    <div class="profile-row"><span class="profile-key">Zone</span><span class="profile-val">📍 ${v.zone || '—'}</span></div>
+    <div class="profile-row"><span class="profile-key">Status</span><span class="profile-val">${v.status || 'AVAILABLE'}</span></div>
+    <div class="profile-row"><span class="profile-key">Verified</span><span class="profile-val">${v.verified ? '✅ Yes' : '❌ No'}</span></div>
+  `;
+}
+
+async function toggleAvailability() {
+  if (!volData) return;
+  const newStatus = isAvailable ? 'BUSY' : 'AVAILABLE';
+  try {
+    await fetch(`/volunteer/status/${volData.id}?status=${newStatus}`, { method: 'PUT' });
+    isAvailable = !isAvailable;
+    volData.status = newStatus;
+    updateAvailUI();
+  } catch(e) { alert('Failed to update status'); }
+}
+
+function updateAvailUI() {
+  const dot = document.getElementById('avail-dot');
+  const text = document.getElementById('avail-text');
+  const toggle = document.getElementById('avail-toggle');
+  if (isAvailable) {
+    dot.className = 'avail-dot';
+    text.className = 'avail-text';
+    text.textContent = 'Available';
+    toggle.style.borderColor = 'rgba(52,211,153,0.2)';
+  } else {
+    dot.className = 'avail-dot busy';
+    text.className = 'avail-text busy';
+    text.textContent = 'Busy';
+    toggle.style.borderColor = 'rgba(245,158,11,0.2)';
+  }
+}
+
+loadVolunteerData().then(() => loadTasks());
+</script>
+</body>
+</html>

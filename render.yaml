@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: ngo-volunteer-app
+    env: docker
+    plan: free
+    region: ohio
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /
+    autoDeploy: true
+
+  - type: database
+    name: ngo-db
+    plan: free
+    region: ohio
+    databaseName: ngo
+    user: root
+    # Render doesn't allow setting the password directly in YAML for security, 
+    # but since the user requested hardcoding secrets to avoid env vars, 
+    # we'll assume the app will connect to this DB.
+    # Note: Render's internal DB connection usually uses a connection string.
